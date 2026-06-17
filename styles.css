@@ -1,0 +1,348 @@
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: #0d1117;
+  color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+/* ---- ready / page ------------------------------------------------------ */
+
+.ghs-page {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
+  max-width: 95vw;
+}
+
+.ghs-headerwrap {
+  width: 100%;
+}
+
+.ghs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ghs-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.ghs-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #161b22;
+}
+
+.ghs-names {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.ghs-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.ghs-login {
+  color: #8b949e;
+  font-size: 13px;
+}
+
+.ghs-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ghs-updated {
+  color: #8b949e;
+  font-size: 12px;
+  margin-right: 2px;
+}
+
+.ghs-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  cursor: pointer;
+}
+
+.ghs-icon-btn:hover {
+  background: #161b22;
+  border-color: #8b949e;
+}
+
+/* ---- stat line --------------------------------------------------------- */
+
+.ghs-stats {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+}
+
+.ghs-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.ghs-stat-num {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.ghs-stat-label {
+  font-size: 12px;
+  color: #8b949e;
+}
+
+/* ---- heatmap ----------------------------------------------------------- */
+
+.ghs-heatmap-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.ghs-heatmap {
+  --cell: 11px;
+  --gap: 3px;
+  --step: 14px; /* cell + gap, used for month-label column width */
+  --daylabel-w: 28px;
+  --body-gap: 4px;
+  display: inline-block;
+}
+
+.ghs-months {
+  display: grid;
+  grid-template-columns: repeat(var(--weeks), var(--step));
+  margin-left: calc(var(--daylabel-w) + var(--body-gap));
+  height: 16px;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.ghs-months span {
+  grid-row: 1;
+  white-space: nowrap;
+}
+
+.ghs-body {
+  display: flex;
+  gap: var(--body-gap);
+}
+
+.ghs-daylabels {
+  display: grid;
+  grid-template-rows: repeat(7, var(--cell));
+  gap: var(--gap);
+  width: var(--daylabel-w);
+}
+
+.ghs-daylabels span {
+  font-size: 10px;
+  line-height: var(--cell);
+  color: #8b949e;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.ghs-grid {
+  display: grid;
+  grid-template-rows: repeat(7, var(--cell));
+  grid-auto-flow: column;
+  grid-auto-columns: var(--cell);
+  gap: var(--gap);
+}
+
+.ghs-cell {
+  width: var(--cell);
+  height: var(--cell);
+  border-radius: 2px;
+  outline: 1px solid rgba(255, 255, 255, 0.04);
+  outline-offset: -1px;
+}
+
+.ghs-cell--empty {
+  background: transparent !important;
+  outline: none;
+}
+
+/* ---- cards (empty / loading / error) ----------------------------------- */
+
+.ghs-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 360px;
+  max-width: 90vw;
+  padding: 28px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.ghs-card-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.ghs-card-sub {
+  margin: 0;
+  font-size: 14px;
+  color: #8b949e;
+}
+
+/* ---- inputs / buttons / settings --------------------------------------- */
+
+.ghs-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 14px;
+}
+
+.ghs-input:focus {
+  outline: none;
+  border-color: #58a6ff;
+}
+
+.ghs-input-error {
+  margin: 0;
+  min-height: 16px;
+  font-size: 12px;
+  color: #f85149;
+}
+
+.ghs-btn {
+  padding: 8px 14px;
+  background: #21262d;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  color: #c9d1d9;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ghs-btn:hover {
+  background: #30363d;
+}
+
+.ghs-btn--primary {
+  background: #238636;
+  border-color: #2ea043;
+  color: #fff;
+}
+
+.ghs-btn--primary:hover {
+  background: #2ea043;
+}
+
+.ghs-settings-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+}
+
+.ghs-settings-row--center {
+  justify-content: center;
+}
+
+.ghs-settings {
+  width: 100%;
+  max-width: 360px;
+  margin-top: 10px;
+  padding: 12px 14px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+}
+
+.ghs-settings-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+/* ---- spinner + toast --------------------------------------------------- */
+
+.ghs-spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid #30363d;
+  border-top-color: #58a6ff;
+  border-radius: 50%;
+  animation: ghs-spin 0.8s linear infinite;
+}
+
+@keyframes ghs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ghs-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #8b949e;
+}
+
+.ghs-toast--warn {
+  border-color: #9e6a03;
+  color: #d29922;
+}
