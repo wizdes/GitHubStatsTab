@@ -1,0 +1,16 @@
+{
+  "name": "github-stats-tab",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Minimal MV3 Chrome extension: GitHub contribution heatmap + stats on every new tab, no auth token.",
+  "scripts": {
+    "test": "node --test",
+    "test:e2e": "playwright test",
+    "icons": "node scripts/generate-icons.mjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0",
+    "linkedom": "^0.18.5"
+  }
+}
