@@ -12,6 +12,11 @@ import { staleColor, isExpired } from './freshness.js';
 
 const app = document.getElementById('app');
 
+// Diagnostics backstop. Nothing in this file should reject uncaught (load() is
+// wrapped, caches are validated), but if a future change or a stale build does,
+// log it cleanly rather than surfacing a bare "Uncaught (in promise)".
+window.addEventListener('unhandledrejection', (e) => console.error('[GitHubStatsTab] unhandled rejection:', e.reason));
+
 const ICONS = {
   refresh:
     '<svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/><path fill="currentColor" d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>',
@@ -286,6 +291,7 @@ async function load(force = false) {
 
     const raw = await getCache().catch(() => null);
     const cached = isUsableEntry(raw, username) ? raw : null;
+    if (raw && !cached) clearCache().catch(() => {}); // purge legacy/foreign entries
 
     if (!force && cached && isFresh(cached.fetchedAt, Date.now())) {
       return renderReady(cached);
@@ -317,5 +323,5 @@ setInterval(() => {
   if (current.fetchedAt && isExpired(Date.now() - current.fetchedAt) && !loading) load(true);
 }, 60_000);
 
-applyTheme();
+applyTheme().catch((e) => console.error('[GitHubStatsTab] theme:', e));
 load();

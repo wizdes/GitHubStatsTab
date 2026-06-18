@@ -139,6 +139,9 @@ test('recovers from an incompatible (v1) cached entry instead of going blank', a
   await page.reload();
   // Must never be blank: either the (refetched) heatmap or a card.
   await expect(page.locator('.ghs-grid, .ghs-card')).toBeVisible({ timeout: 6000 });
+  // The legacy entry is purged: the cache now holds the current shape (or nothing).
+  const entry = await page.evaluate(async () => (await chrome.storage.local.get('ghs-cache'))['ghs-cache']);
+  expect(entry === undefined || Array.isArray(entry?.contributions?.days)).toBe(true);
   await context.close();
 });
 

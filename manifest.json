@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "GitHub Stats Tab",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Your public GitHub stats and contribution heatmap on every new tab. No login required.",
   "chrome_url_overrides": { "newtab": "newtab.html" },
   "background": { "service_worker": "src/background.js" },
