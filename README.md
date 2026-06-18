@@ -1,35 +1,34 @@
 # GitHub Stats Tab
 
-A minimal Chrome extension (Manifest V3) that turns every **new tab** into a
-GitHub stats page for one username — the hero being a pixel-faithful contribution
-heatmap. **No login / no auth token**: it scrapes the public profile.
+A minimal Chrome extension (Manifest V3) that turns every **new tab** into just a
+pixel-faithful GitHub contribution heatmap for one username. **No login / no auth
+token**: it scrapes the public profile.
 
-![ready state](gate-evidence/04-live.png)
+![ready state](gate-evidence/01-ready.png)
 
 ## What it shows
 
-- The contribution heatmap (5-level green squares, 7 rows × ~53 week columns,
-  month + Mon/Wed/Fri labels) — rebuilt from GitHub's own data to match exactly.
-- A slim stat line: public repos · stars · followers · total contributions.
-- Avatar + name + `@username` (links to the profile), with **refresh** and
-  **settings** (change username) controls.
+- **Only the contribution heatmap** (5-level green squares, 7 rows × ~53 week
+  columns, month + Mon/Wed/Fri labels), centered — rebuilt from GitHub's own data
+  to match exactly. No avatar, name, or stat line.
+- A small top-right cluster: a **refresh** button whose color encodes data age
+  (gentle green when fresh → red at 1 day; auto-refreshes past 1 day) and a
+  **settings** gear that opens a username popover right under it (no page reflow).
 
-Set a username once in settings; results are cached for 24h with a manual refresh.
+Set a username once in settings; results are cached for 24h with manual refresh.
 
 ## How it works (no token)
 
 | Data | Source |
 |------|--------|
 | Heatmap + total contributions | `https://github.com/users/{username}/contributions` (HTML, parsed in `src/parse.js`; total = sum of per-day tooltip counts) |
-| Avatar | `https://github.com/{username}.png` (image, no API) |
-| Repos / followers | unauthenticated `https://api.github.com/users/{username}` (60 req/hr) |
-| Total stars | sum of `stargazers_count` across `…/repos` pages (best-effort) |
 
-CORS is handled by the manifest's `host_permissions` for `github.com` and
-`api.github.com`, so the new-tab page can `fetch()` them directly — no token, no
-backend. The contributions endpoint is **undocumented and can change**; parsing is
-isolated in `src/parse.js` and fails loudly (the page shows an error + retry, and
-`test/parse.test.js` goes red against the saved fixture).
+That single HTML fragment is the only thing fetched. CORS is handled by the
+manifest's lone `host_permissions` entry for `github.com`, so the new-tab page can
+`fetch()` it directly — no token, no backend, no `api.github.com`. The endpoint is
+**undocumented and can change**; parsing is isolated in `src/parse.js` and fails
+loudly (error + retry on the page, and `test/parse.test.js` goes red against the
+saved fixture).
 
 ## Stack
 
@@ -52,23 +51,24 @@ unpacked** → select this folder. Open a new tab, click the gear, enter a usern
 ## Files
 
 ```
-manifest.json          MV3: new-tab override, host_permissions, background SW
+manifest.json          MV3: new-tab override, github.com host_permission, background SW
 newtab.html            page shell → src/main.js
 styles.css             GitHub-dark theme, centered layout
 src/parse.js           contributions HTML → { days, total }   (pure, fixture-tested)
 src/heatmap.js         buildGrid / monthLabels (pure) + renderHeatmap
 src/cache.js           24h chrome.storage cache (isFresh pure)
+src/freshness.js       data-age → refresh color + auto-refresh threshold (pure)
 src/settings.js        username get/set + validation
-src/github.js          fetch contributions / profile / stars (no auth)
+src/github.js          fetch contributions (no auth)
 src/main.js            orchestrator + empty/loading/ready/error states
 src/background.js       minimal service worker
 scripts/generate-icons.mjs   dependency-free PNG icon generator
-test/                  node:test unit + parser tests (+ fixture)
+test/                  node:test unit + parser + freshness tests (+ fixture)
 e2e/                   Playwright loaded-extension tests
 ```
 
 ## Status / deferred
 
-v1 is feature-complete and verified (unit + E2E + live). Not yet done: published
-to the Chrome Web Store. Future ideas: a popup surface, multiple saved usernames,
-streak stats.
+Feature-complete and verified (unit + E2E + live). Not yet done: published to the
+Chrome Web Store. Future ideas: a popup surface, multiple saved usernames, streak
+stats.
