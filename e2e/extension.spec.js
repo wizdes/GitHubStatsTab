@@ -108,6 +108,40 @@ test('settings changes the username (persists + re-renders)', async () => {
   await context.close();
 });
 
+test('first open with empty storage shows the prompt — no blank screen (regression)', async () => {
+  const { context, id } = await launch();
+  const errors = [];
+  const page = await context.newPage();
+  page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
+  page.on('console', (m) => {
+    if (m.type() === 'error') errors.push('console: ' + m.text());
+  });
+  // First and only navigation in a fresh profile (empty storage), NO reload —
+  // this is what a real first new-tab open does.
+  await page.goto(`chrome-extension://${id}/newtab.html`);
+  await expect(page.locator('.ghs-card-title')).toBeVisible({ timeout: 6000 });
+  expect(errors, errors.join('\n')).toEqual([]);
+  await context.close();
+});
+
+test('recovers from an incompatible (v1) cached entry instead of going blank', async () => {
+  const { context, id } = await launch();
+  mockContributions(context);
+  const page = await context.newPage();
+  await page.goto(`chrome-extension://${id}/newtab.html`);
+  // Seed a v1-shaped cache ({payload} wrapper) that the v2 renderer would misread.
+  await page.evaluate(() =>
+    chrome.storage.local.set({
+      'ghs-username': 'torvalds',
+      'ghs-cache': { username: 'torvalds', fetchedAt: Date.now(), payload: { contributions: { days: [], total: 0 } } },
+    }),
+  );
+  await page.reload();
+  // Must never be blank: either the (refetched) heatmap or a card.
+  await expect(page.locator('.ghs-grid, .ghs-card')).toBeVisible({ timeout: 6000 });
+  await context.close();
+});
+
 test('empty state prompts for a username', async () => {
   const { context, id } = await launch();
   const page = await openNewtab(context, id, undefined);

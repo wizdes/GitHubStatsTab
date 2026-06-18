@@ -211,31 +211,46 @@ function renderError(username, err, cached) {
 
 // ---- entry ---------------------------------------------------------------
 
+// A cache entry is only usable if it's for this username and has the current
+// shape. Entries from an older version (or any junk) are treated as a miss so
+// we refetch rather than throwing while rendering — never a blank page.
+function usableCache(c, username) {
+  return !!c && c.username === username && Array.isArray(c.contributions?.days);
+}
+
 async function load(force = false) {
   loading = true;
   try {
-    const username = await getUsername();
-    if (!username) {
-      renderEmpty();
-      return;
+    let username = '';
+    try {
+      username = await getUsername();
+    } catch (e) {
+      console.error('[GitHubStatsTab] storage read failed', e);
+      return renderEmpty();
     }
+    if (!username) return renderEmpty();
 
-    const cached = await getCache();
-    if (!force && cached && cached.username === username && isFresh(cached.fetchedAt, Date.now())) {
-      renderReady(cached);
-      return;
+    const raw = await getCache().catch(() => null);
+    const cached = usableCache(raw, username) ? raw : null;
+
+    if (!force && cached && isFresh(cached.fetchedAt, Date.now())) {
+      return renderReady(cached);
     }
 
     renderLoading(username, cached);
     try {
       const contributions = await fetchContributions(username);
       const entry = { username, fetchedAt: Date.now(), contributions };
-      await setCache(entry);
+      await setCache(entry).catch(() => {});
       renderReady(entry);
     } catch (err) {
       console.error('[GitHubStatsTab]', err);
       renderError(username, err, cached);
     }
+  } catch (e) {
+    // Last-resort guard: whatever went wrong, show the prompt, never a blank tab.
+    console.error('[GitHubStatsTab] unexpected', e);
+    renderEmpty();
   } finally {
     loading = false;
   }
