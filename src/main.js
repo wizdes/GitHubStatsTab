@@ -4,8 +4,8 @@
 // refresh button (color-coded by data age) and the settings gear (whose popover
 // drops in under it without reflowing the page).
 
-import { getUsername, setUsername, isValidUsername, normalizeUsername } from './settings.js';
-import { getCache, setCache, clearCache, isFresh } from './cache.js';
+import { getUsername, setUsername, isValidUsername, normalizeUsername, getTheme, setTheme } from './settings.js';
+import { getCache, setCache, clearCache, isFresh, isUsableEntry } from './cache.js';
 import { fetchContributions } from './github.js';
 import { renderHeatmap } from './heatmap.js';
 import { staleColor, isExpired } from './freshness.js';
@@ -52,6 +52,67 @@ function applyFreshness() {
   btn.style.color = staleColor(Date.now() - current.fetchedAt);
 }
 
+// ---- theme ---------------------------------------------------------------
+
+let themeMql = null;
+
+function resolveTheme(choice) {
+  if (choice === 'system') {
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  }
+  return choice;
+}
+
+async function applyTheme() {
+  document.documentElement.dataset.theme = resolveTheme(await getTheme());
+  // While on 'system', follow OS changes live.
+  if (!themeMql) {
+    themeMql = window.matchMedia('(prefers-color-scheme: light)');
+    themeMql.addEventListener('change', async () => {
+      if ((await getTheme()) === 'system') document.documentElement.dataset.theme = resolveTheme('system');
+    });
+  }
+}
+
+// Light/Dark/System, each a fixed-color swatch with a label under it.
+function themeSelector() {
+  const opts = [
+    ['light', 'Light'],
+    ['dark', 'Dark'],
+    ['system', 'System'],
+  ];
+  const buttons = {};
+  const mark = (active) => {
+    for (const [val] of opts) buttons[val].setAttribute('aria-pressed', String(val === active));
+  };
+  const row = h(
+    'div',
+    { class: 'ghs-theme-options' },
+    ...opts.map(([val, label]) => {
+      const btn = h(
+        'button',
+        {
+          class: 'ghs-theme-option',
+          type: 'button',
+          'data-theme-choice': val,
+          'aria-pressed': 'false',
+          onclick: async () => {
+            await setTheme(val);
+            await applyTheme();
+            mark(val);
+          },
+        },
+        h('span', { class: `ghs-swatch ghs-swatch--${val}` }),
+        h('span', { class: 'ghs-theme-name' }, label),
+      );
+      buttons[val] = btn;
+      return btn;
+    }),
+  );
+  getTheme().then(mark);
+  return h('div', { class: 'ghs-theme' }, h('label', { class: 'ghs-settings-label' }, 'Theme'), row);
+}
+
 // ---- settings popover (shared by ready + error states) -------------------
 
 function settingsPanel(currentUsername) {
@@ -87,6 +148,7 @@ function settingsPanel(currentUsername) {
     h('label', { class: 'ghs-settings-label' }, 'Show heatmap for'),
     h('div', { class: 'ghs-settings-row' }, input, h('button', { class: 'ghs-btn ghs-btn--primary', onclick: save }, 'Save')),
     error,
+    themeSelector(),
   );
   return { panel, focus: () => input.focus() };
 }
@@ -211,13 +273,6 @@ function renderError(username, err, cached) {
 
 // ---- entry ---------------------------------------------------------------
 
-// A cache entry is only usable if it's for this username and has the current
-// shape. Entries from an older version (or any junk) are treated as a miss so
-// we refetch rather than throwing while rendering — never a blank page.
-function usableCache(c, username) {
-  return !!c && c.username === username && Array.isArray(c.contributions?.days);
-}
-
 async function load(force = false) {
   loading = true;
   try {
@@ -231,7 +286,7 @@ async function load(force = false) {
     if (!username) return renderEmpty();
 
     const raw = await getCache().catch(() => null);
-    const cached = usableCache(raw, username) ? raw : null;
+    const cached = isUsableEntry(raw, username) ? raw : null;
 
     if (!force && cached && isFresh(cached.fetchedAt, Date.now())) {
       return renderReady(cached);
@@ -263,4 +318,5 @@ setInterval(() => {
   if (current.fetchedAt && isExpired(Date.now() - current.fetchedAt) && !loading) load(true);
 }, 60_000);
 
+applyTheme();
 load();

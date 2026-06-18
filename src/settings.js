@@ -22,3 +22,15 @@ export async function getUsername() {
 export async function setUsername(name) {
   await chrome.storage.local.set({ [KEY]: normalizeUsername(name) });
 }
+
+const THEME_KEY = 'ghs-theme';
+export const THEMES = ['light', 'dark', 'system'];
+
+export async function getTheme() {
+  const obj = await chrome.storage.local.get(THEME_KEY);
+  return THEMES.includes(obj[THEME_KEY]) ? obj[THEME_KEY] : 'dark';
+}
+
+export async function setTheme(theme) {
+  if (THEMES.includes(theme)) await chrome.storage.local.set({ [THEME_KEY]: theme });
+}

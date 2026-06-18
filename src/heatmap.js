@@ -3,9 +3,8 @@
 // dark theme and spacing are exactly ours. buildGrid / monthLabels are pure
 // and unit-tested; renderHeatmap touches the DOM.
 
-// Level 0 (no contributions) is a touch lighter than the midnight page bg so
-// the empty grid reads; levels 1–4 are GitHub's exact dark-mode greens.
-export const LEVEL_COLORS = ['#2d2f3b', '#0e4429', '#006d32', '#26a641', '#39d353'];
+// Cell colors live in CSS (`.ghs-cell[data-level=N]`, themed via CSS variables)
+// so switching theme recolors the grid with no re-render.
 export const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', '']; // rows 0..6 = Sun..Sat
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -81,10 +80,8 @@ export function renderHeatmap(container, days) {
     for (const day of col) {
       const cell = document.createElement('div');
       cell.className = 'ghs-cell';
-      const level = day ? day.level : 0;
-      cell.style.background = LEVEL_COLORS[level] || LEVEL_COLORS[0];
       if (day) {
-        cell.dataset.level = String(day.level);
+        cell.dataset.level = String(day.level); // CSS colors it
         cell.dataset.date = day.date;
         const noun = day.count === 1 ? 'contribution' : 'contributions';
         cell.title = `${day.count} ${noun} on ${day.date}`;

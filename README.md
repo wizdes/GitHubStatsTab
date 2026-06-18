@@ -13,7 +13,8 @@ token**: it scrapes the public profile.
   to match exactly. No avatar, name, or stat line.
 - A small top-right cluster: a **refresh** button whose color encodes data age
   (gentle green when fresh → red at 1 day; auto-refreshes past 1 day) and a
-  **settings** gear that opens a username popover right under it (no page reflow).
+  **settings** gear that opens a popover (right under it, no page reflow) to set
+  the username and pick a **Light / Dark / System** theme.
 
 Set a username once in settings; results are cached for 24h with manual refresh.
 

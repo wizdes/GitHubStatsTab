@@ -177,6 +177,37 @@ test('refresh icon shifts toward red as the data ages', async () => {
   await context.close();
 });
 
+test('theme selector switches Light/Dark/System and persists', async () => {
+  const { context, id } = await launch();
+  mockContributions(context);
+  const page = await openNewtab(context, id, 'torvalds');
+  await expect(page.locator('.ghs-grid')).toBeVisible();
+
+  await page.locator('.ghs-icon-btn[title="Settings"]').click();
+  await expect(page.locator('.ghs-theme')).toBeVisible();
+  expect(await page.locator('.ghs-theme-option').count()).toBe(3);
+
+  await page.locator('.ghs-theme-option[data-theme-choice="light"]').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(253, 245, 223)');
+  await expect
+    .poll(() => page.evaluate(async () => (await chrome.storage.local.get('ghs-theme'))['ghs-theme']))
+    .toBe('light');
+  await page.screenshot({ path: join(SHOTS, '06-light.png'), fullPage: true });
+
+  await page.locator('.ghs-theme-option[data-theme-choice="dark"]').click();
+  await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(36, 37, 47)');
+
+  await page.locator('.ghs-theme-option[data-theme-choice="system"]').click();
+  expect(['light', 'dark']).toContain(await page.locator('html').getAttribute('data-theme'));
+  await expect
+    .poll(() => page.evaluate(async () => (await chrome.storage.local.get('ghs-theme'))['ghs-theme']))
+    .toBe('system');
+
+  await context.close();
+});
+
 const RUN_LIVE = process.env.RUN_LIVE === '1';
 test('live: real github.com fetch for torvalds (set RUN_LIVE=1)', async () => {
   test.skip(!RUN_LIVE, 'live network test disabled — set RUN_LIVE=1 to run');

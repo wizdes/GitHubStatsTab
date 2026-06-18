@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildGrid, monthLabels, LEVEL_COLORS, DAY_LABELS } from '../src/heatmap.js';
+import { buildGrid, monthLabels, DAY_LABELS } from '../src/heatmap.js';
 
 // Helper: a run of N consecutive days starting at `start`, all level 1.
 function run(start, n) {
@@ -12,12 +12,6 @@ function run(start, n) {
   }
   return out;
 }
-
-test('LEVEL_COLORS maps the 5 GitHub levels', () => {
-  assert.equal(LEVEL_COLORS.length, 5);
-  assert.equal(LEVEL_COLORS[0], '#2d2f3b'); // empty cell tuned for the midnight bg
-  assert.equal(LEVEL_COLORS[4], '#39d353');
-});
 
 test('DAY_LABELS labels Mon/Wed/Fri on rows 1/3/5', () => {
   assert.deepEqual(DAY_LABELS, ['', 'Mon', '', 'Wed', '', 'Fri', '']);
