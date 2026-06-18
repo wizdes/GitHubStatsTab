@@ -7,7 +7,8 @@
   "scripts": {
     "test": "node --test",
     "test:e2e": "playwright test",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "package": "bash scripts/package.sh"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
