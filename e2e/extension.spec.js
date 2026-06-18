@@ -1,6 +1,7 @@
 // Loads the real unpacked extension in Chromium and drives the new-tab page.
-// Deterministic tests route-mock GitHub with the captured fixture; one opt-in
-// live smoke (RUN_LIVE=1) proves the real host_permissions CORS-bypass fetch.
+// Deterministic tests route-mock the one fetched origin (the contributions
+// HTML) with the captured fixture; one opt-in live smoke (RUN_LIVE=1) proves
+// the real host_permissions fetch.
 
 import { test, expect, chromium } from '@playwright/test';
 import { fileURLToPath } from 'node:url';
@@ -13,14 +14,9 @@ const SHOTS = join(EXT, 'gate-evidence');
 const fixtureHtml = readFileSync(join(EXT, 'test', 'fixtures', 'contributions.html'), 'utf8');
 mkdirSync(SHOTS, { recursive: true });
 
-const PNG_1x1 = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-  'base64',
-);
-
 // MV3 service workers don't start in old headless mode, so we run headed
-// (reliable for extension loading). HEADED=0 can force headless for envs
-// where the new headless mode does start the worker.
+// (reliable for extension loading). HEADED=0 forces headless where the new
+// headless mode does start the worker.
 async function launch() {
   const context = await chromium.launchPersistentContext('', {
     headless: process.env.HEADED === '0',
@@ -32,19 +28,9 @@ async function launch() {
   return { context, id };
 }
 
-function mockGitHub(context) {
-  context.route(/https:\/\/github\.com\/[^/]+\.png.*/, (r) => r.fulfill({ contentType: 'image/png', body: PNG_1x1 }));
+function mockContributions(context) {
   context.route(/https:\/\/github\.com\/users\/[^/]+\/contributions/, (r) =>
     r.fulfill({ contentType: 'text/html', body: fixtureHtml }),
-  );
-  context.route(/https:\/\/api\.github\.com\/users\/[^/]+$/, (r) =>
-    r.fulfill({
-      contentType: 'application/json',
-      body: JSON.stringify({ login: 'torvalds', name: 'Linus Torvalds', public_repos: 8, followers: 241000 }),
-    }),
-  );
-  context.route(/https:\/\/api\.github\.com\/users\/[^/]+\/repos.*/, (r) =>
-    r.fulfill({ contentType: 'application/json', body: JSON.stringify([{ stargazers_count: 190000 }]) }),
   );
 }
 
@@ -60,57 +46,65 @@ async function openNewtab(context, id, username) {
   return page;
 }
 
-test('renders the heatmap, stats, and header from mocked GitHub data', async () => {
+test('ready view shows only the heatmap — no avatar, name, or stat line', async () => {
   const { context, id } = await launch();
-  mockGitHub(context);
+  mockContributions(context);
   const page = await openNewtab(context, id, 'torvalds');
 
   await expect(page.locator('.ghs-grid')).toBeVisible();
   await expect.poll(() => page.locator('.ghs-cell').count()).toBeGreaterThan(350);
-  expect(await page.locator('.ghs-cell[data-level]').count()).toBeGreaterThan(300);
-
-  // 7 rows: the grid template should declare 7 row tracks.
-  const rows = await page.locator('.ghs-grid').evaluate((el) =>
-    getComputedStyle(el).gridTemplateRows.split(' ').length,
-  );
+  const rows = await page.locator('.ghs-grid').evaluate((el) => getComputedStyle(el).gridTemplateRows.split(' ').length);
   expect(rows).toBe(7);
 
-  await expect(page.locator('.ghs-login')).toHaveText('@torvalds');
-  await expect(page.locator('.ghs-stats')).toContainText('contributions');
+  // The removed chrome must be gone.
+  for (const sel of ['.ghs-identity', '.ghs-avatar', '.ghs-stats', '.ghs-updated', '.ghs-login']) {
+    expect(await page.locator(sel).count(), sel).toBe(0);
+  }
+  // Controls remain.
+  await expect(page.locator('.ghs-refresh')).toBeVisible();
+  await expect(page.locator('.ghs-icon-btn[title="Settings"]')).toBeVisible();
+
+  // Refresh glyph is green when data is fresh (just fetched).
+  const rgb = await page.locator('.ghs-refresh').evaluate((el) => getComputedStyle(el).color);
+  const [r, g, b] = rgb.match(/\d+/g).map(Number);
+  expect(g, rgb).toBeGreaterThan(r);
+  expect(g, rgb).toBeGreaterThan(b);
 
   await page.screenshot({ path: join(SHOTS, '01-ready.png'), fullPage: true });
   await context.close();
 });
 
-test('refresh re-fetches without breaking the page', async () => {
+test('gear popover opens under the gear without reflowing the heatmap', async () => {
   const { context, id } = await launch();
-  mockGitHub(context);
+  mockContributions(context);
   const page = await openNewtab(context, id, 'torvalds');
   await expect(page.locator('.ghs-grid')).toBeVisible();
 
-  await page.locator('.ghs-icon-btn[title="Refresh"]').click();
-  // The transient "Refreshing…" toast is removed once the refetch re-renders.
-  await expect(page.locator('.ghs-toast')).toHaveCount(0);
-  await expect(page.locator('.ghs-grid')).toBeVisible();
-  await expect(page.locator('.ghs-login')).toHaveText('@torvalds');
+  const before = await page.locator('.ghs-heatmap').boundingBox();
+  await page.locator('.ghs-icon-btn[title="Settings"]').click();
+  await expect(page.locator('.ghs-settings .ghs-input')).toBeVisible();
+  const after = await page.locator('.ghs-heatmap').boundingBox();
+  expect(Math.abs(after.y - before.y)).toBeLessThan(1); // heatmap did not move
+  expect(Math.abs(after.x - before.x)).toBeLessThan(1);
 
+  await page.screenshot({ path: join(SHOTS, '02-popover.png'), fullPage: true });
   await context.close();
 });
 
-test('settings changes the username and re-renders', async () => {
+test('settings changes the username (persists + re-renders)', async () => {
   const { context, id } = await launch();
-  mockGitHub(context);
+  mockContributions(context);
   const page = await openNewtab(context, id, 'torvalds');
   await expect(page.locator('.ghs-grid')).toBeVisible();
 
   await page.locator('.ghs-icon-btn[title="Settings"]').click();
-  const input = page.locator('.ghs-settings .ghs-input');
-  await expect(input).toBeVisible();
-  await input.fill('octocat');
+  await page.locator('.ghs-settings .ghs-input').fill('octocat');
   await page.locator('.ghs-settings .ghs-btn--primary').click();
-  await expect(page.locator('.ghs-login')).toHaveText('@octocat');
 
-  await page.screenshot({ path: join(SHOTS, '02-after-settings.png'), fullPage: true });
+  await expect
+    .poll(() => page.evaluate(async () => (await chrome.storage.local.get('ghs-username'))['ghs-username']))
+    .toBe('octocat');
+  await expect(page.locator('.ghs-grid')).toBeVisible();
   await context.close();
 });
 
@@ -125,28 +119,27 @@ test('empty state prompts for a username', async () => {
   await context.close();
 });
 
-test('stars degrade to "—" when the repos API is rate-limited', async () => {
+test('refresh icon shifts toward red as the data ages', async () => {
   const { context, id } = await launch();
-  // contributions + profile succeed, but the repos endpoint is rate-limited.
-  context.route(/https:\/\/github\.com\/[^/]+\.png.*/, (r) => r.fulfill({ contentType: 'image/png', body: PNG_1x1 }));
-  context.route(/https:\/\/github\.com\/users\/[^/]+\/contributions/, (r) =>
-    r.fulfill({ contentType: 'text/html', body: fixtureHtml }),
-  );
-  context.route(/https:\/\/api\.github\.com\/users\/[^/]+$/, (r) =>
-    r.fulfill({
-      contentType: 'application/json',
-      body: JSON.stringify({ login: 'torvalds', name: 'Linus Torvalds', public_repos: 8, followers: 241000 }),
-    }),
-  );
-  context.route(/https:\/\/api\.github\.com\/users\/[^/]+\/repos.*/, (r) =>
-    r.fulfill({ status: 403, contentType: 'application/json', body: '{"message":"rate limited"}' }),
-  );
+  mockContributions(context);
   const page = await openNewtab(context, id, 'torvalds');
-
   await expect(page.locator('.ghs-grid')).toBeVisible();
-  // stat order: repos, stars, followers, contributions
-  await expect(page.locator('.ghs-stat:nth-child(2) .ghs-stat-num')).toHaveText('—'); // stars unknown
-  await expect(page.locator('.ghs-stat:nth-child(1) .ghs-stat-num')).toHaveText('8'); // repos still shown
+
+  // Backdate the cached fetch to ~18h ago, then re-render from cache.
+  await page.evaluate(async () => {
+    const o = await chrome.storage.local.get('ghs-cache');
+    o['ghs-cache'].fetchedAt = Date.now() - 18 * 60 * 60 * 1000;
+    await chrome.storage.local.set(o);
+  });
+  await page.reload();
+  await expect(page.locator('.ghs-grid')).toBeVisible();
+
+  const rgb = await page.locator('.ghs-refresh').evaluate((el) => getComputedStyle(el).color);
+  const [r, g, b] = rgb.match(/\d+/g).map(Number);
+  expect(r, rgb).toBeGreaterThan(g); // 18h old → orange/red, red channel now leads
+  expect(b, rgb).toBeLessThan(g);
+
+  await page.screenshot({ path: join(SHOTS, '05-stale-color.png'), fullPage: true });
   await context.close();
 });
 
@@ -158,16 +151,6 @@ test('live: real github.com fetch for torvalds (set RUN_LIVE=1)', async () => {
 
   await expect(page.locator('.ghs-grid')).toBeVisible({ timeout: 25_000 });
   await expect.poll(() => page.locator('.ghs-cell').count(), { timeout: 25_000 }).toBeGreaterThan(300);
-  await expect(page.locator('.ghs-login')).toHaveText('@torvalds');
-
-  // Avatar comes from github.com/{user}.png — confirm the real image loads.
-  await page.waitForFunction(
-    () => {
-      const img = document.querySelector('.ghs-avatar');
-      return img && img.complete && img.naturalWidth > 1;
-    },
-    { timeout: 15_000 },
-  );
 
   await page.screenshot({ path: join(SHOTS, '04-live.png'), fullPage: true });
   await context.close();

@@ -1,11 +1,14 @@
 // Orchestrator: read the saved username, serve from the 24h cache or fetch
 // fresh, and render one of four states (empty / loading / ready / error) into
-// #app. Wires the refresh button and the settings panel.
+// #app. The ready view is just the heatmap; a fixed top-right cluster holds the
+// refresh button (color-coded by data age) and the settings gear (whose popover
+// drops in under it without reflowing the page).
 
 import { getUsername, setUsername, isValidUsername, normalizeUsername } from './settings.js';
 import { getCache, setCache, clearCache, isFresh } from './cache.js';
-import { fetchAll } from './github.js';
+import { fetchContributions } from './github.js';
 import { renderHeatmap } from './heatmap.js';
+import { staleColor, isExpired } from './freshness.js';
 
 const app = document.getElementById('app');
 
@@ -33,23 +36,23 @@ function h(tag, props = {}, ...kids) {
   return node;
 }
 
-const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString());
-
-function agoLabel(ts) {
-  const mins = Math.floor((Date.now() - ts) / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return `${Math.floor(hrs / 24)}d ago`;
-}
-
 function mount(node) {
   app.innerHTML = '';
   app.appendChild(node);
 }
 
-// ---- settings panel (shared by ready/error states) ----------------------
+// Tracks the currently-displayed data's age so the periodic tick can recolor
+// the refresh icon and auto-refresh once it crosses 1 day.
+const current = { fetchedAt: null };
+let loading = false;
+
+function applyFreshness() {
+  const btn = app.querySelector('.ghs-refresh');
+  if (!btn || !current.fetchedAt) return;
+  btn.style.color = staleColor(Date.now() - current.fetchedAt);
+}
+
+// ---- settings popover (shared by ready + error states) -------------------
 
 function settingsPanel(currentUsername) {
   const input = h('input', {
@@ -81,20 +84,26 @@ function settingsPanel(currentUsername) {
   const panel = h(
     'div',
     { class: 'ghs-settings' },
-    h('label', { class: 'ghs-settings-label' }, 'Show stats for'),
+    h('label', { class: 'ghs-settings-label' }, 'Show heatmap for'),
     h('div', { class: 'ghs-settings-row' }, input, h('button', { class: 'ghs-btn ghs-btn--primary', onclick: save }, 'Save')),
     error,
   );
   return { panel, focus: () => input.focus() };
 }
 
-function header(entry) {
-  const { username, payload, fetchedAt } = entry;
-  const name = payload?.profile?.name || `@${username}`;
-  const profileUrl = `https://github.com/${encodeURIComponent(username)}`;
-
+// Fixed top-right cluster: refresh (color = data age) + gear (toggles the
+// popover, which is positioned under the gear so it never reflows the heatmap).
+function controls(username) {
   const settings = settingsPanel(username);
   settings.panel.hidden = true;
+
+  const refreshBtn = h('button', {
+    class: 'ghs-icon-btn ghs-refresh',
+    title: 'Refresh',
+    'aria-label': 'Refresh',
+    html: ICONS.refresh,
+    onclick: () => load(true),
+  });
 
   const gearBtn = h('button', {
     class: 'ghs-icon-btn',
@@ -107,62 +116,19 @@ function header(entry) {
     },
   });
 
-  const refreshBtn = h('button', {
-    class: 'ghs-icon-btn',
-    title: 'Refresh',
-    'aria-label': 'Refresh',
-    html: ICONS.refresh,
-    onclick: () => load(true),
-  });
-
-  const top = h(
-    'div',
-    { class: 'ghs-header' },
-    h(
-      'a',
-      { class: 'ghs-identity', href: profileUrl, target: '_blank', rel: 'noopener noreferrer' },
-      h('img', { class: 'ghs-avatar', src: payload.avatarUrl, alt: '', width: '44', height: '44' }),
-      h('span', { class: 'ghs-names' }, h('span', { class: 'ghs-name' }, name), h('span', { class: 'ghs-login' }, `@${username}`)),
-    ),
-    h(
-      'div',
-      { class: 'ghs-actions' },
-      fetchedAt ? h('span', { class: 'ghs-updated' }, `updated ${agoLabel(fetchedAt)}`) : null,
-      refreshBtn,
-      gearBtn,
-    ),
-  );
-
-  return h('div', { class: 'ghs-headerwrap' }, top, settings.panel);
-}
-
-function statLine(payload) {
-  const p = payload.profile;
-  const stats = [
-    ['repos', p ? p.repos : null],
-    ['stars', payload.stars],
-    ['followers', p ? p.followers : null],
-    ['contributions', payload.contributions.total],
-  ];
-  return h(
-    'div',
-    { class: 'ghs-stats' },
-    ...stats.map(([label, value]) =>
-      h('div', { class: 'ghs-stat' }, h('span', { class: 'ghs-stat-num' }, fmt(value)), h('span', { class: 'ghs-stat-label' }, label)),
-    ),
-  );
+  return h('div', { class: 'ghs-controls' }, refreshBtn, gearBtn, settings.panel);
 }
 
 // ---- states --------------------------------------------------------------
 
 function renderEmpty() {
+  current.fetchedAt = null;
   const input = h('input', {
     type: 'text',
     class: 'ghs-input',
     placeholder: 'github username',
     spellcheck: 'false',
     autocomplete: 'off',
-    autofocus: 'true',
   });
   const error = h('p', { class: 'ghs-input-error' });
   const save = async () => {
@@ -193,19 +159,21 @@ function renderEmpty() {
 }
 
 function renderReady(entry) {
-  const { payload } = entry;
+  current.fetchedAt = entry.fetchedAt;
   const heatmapWrap = h('div', { class: 'ghs-heatmap' });
-  mount(h('div', { class: 'ghs-page' }, header(entry), statLine(payload), h('div', { class: 'ghs-heatmap-scroll' }, heatmapWrap)));
-  renderHeatmap(heatmapWrap, payload.contributions.days);
+  mount(h('div', { class: 'ghs-ready' }, controls(entry.username), h('div', { class: 'ghs-heatmap-scroll' }, heatmapWrap)));
+  renderHeatmap(heatmapWrap, entry.contributions.days);
+  applyFreshness();
 }
 
 function renderLoading(username, cached) {
   if (cached && cached.username === username) {
     // Refresh in place: keep the (stale) data visible with a badge.
     renderReady(cached);
-    app.querySelector('.ghs-page')?.appendChild(h('div', { class: 'ghs-toast' }, 'Refreshing…'));
+    app.querySelector('.ghs-ready')?.appendChild(h('div', { class: 'ghs-toast' }, 'Refreshing…'));
     return;
   }
+  current.fetchedAt = null;
   mount(h('div', { class: 'ghs-card' }, h('div', { class: 'ghs-spinner' }), h('p', { class: 'ghs-card-sub' }, `Loading @${username}…`)));
 }
 
@@ -221,12 +189,13 @@ function renderError(username, err, cached) {
 
   if (cached && cached.username === username) {
     renderReady(cached);
-    app.querySelector('.ghs-page')?.appendChild(
+    app.querySelector('.ghs-ready')?.appendChild(
       h('div', { class: 'ghs-toast ghs-toast--warn' }, `Showing cached data — couldn't refresh (${reason})`),
     );
     return;
   }
 
+  current.fetchedAt = null;
   const settings = settingsPanel(username);
   mount(
     h(
@@ -234,11 +203,7 @@ function renderError(username, err, cached) {
       { class: 'ghs-card' },
       h('h1', { class: 'ghs-card-title' }, "Couldn't load"),
       h('p', { class: 'ghs-card-sub' }, reason),
-      h(
-        'div',
-        { class: 'ghs-settings-row ghs-settings-row--center' },
-        h('button', { class: 'ghs-btn', onclick: () => load(true) }, 'Retry'),
-      ),
+      h('div', { class: 'ghs-settings-row ghs-settings-row--center' }, h('button', { class: 'ghs-btn', onclick: () => load(true) }, 'Retry')),
       settings.panel,
     ),
   );
@@ -247,24 +212,40 @@ function renderError(username, err, cached) {
 // ---- entry ---------------------------------------------------------------
 
 async function load(force = false) {
-  const username = await getUsername();
-  if (!username) return renderEmpty();
-
-  const cached = await getCache();
-  if (!force && cached && cached.username === username && isFresh(cached.fetchedAt, Date.now())) {
-    return renderReady(cached);
-  }
-
-  renderLoading(username, cached);
+  loading = true;
   try {
-    const payload = await fetchAll(username);
-    const entry = { username, fetchedAt: Date.now(), payload };
-    await setCache(entry);
-    renderReady(entry);
-  } catch (err) {
-    console.error('[GitHubStatsTab]', err);
-    renderError(username, err, cached);
+    const username = await getUsername();
+    if (!username) {
+      renderEmpty();
+      return;
+    }
+
+    const cached = await getCache();
+    if (!force && cached && cached.username === username && isFresh(cached.fetchedAt, Date.now())) {
+      renderReady(cached);
+      return;
+    }
+
+    renderLoading(username, cached);
+    try {
+      const contributions = await fetchContributions(username);
+      const entry = { username, fetchedAt: Date.now(), contributions };
+      await setCache(entry);
+      renderReady(entry);
+    } catch (err) {
+      console.error('[GitHubStatsTab]', err);
+      renderError(username, err, cached);
+    }
+  } finally {
+    loading = false;
   }
 }
+
+// Keep the refresh color live and auto-refresh once data passes 1 day old,
+// even on a tab that stays open across the threshold.
+setInterval(() => {
+  applyFreshness();
+  if (current.fetchedAt && isExpired(Date.now() - current.fetchedAt) && !loading) load(true);
+}, 60_000);
 
 load();

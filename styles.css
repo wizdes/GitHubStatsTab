@@ -29,66 +29,19 @@ body {
 
 /* ---- ready / page ------------------------------------------------------ */
 
-.ghs-page {
+.ghs-ready {
+  display: inline-block; /* shrink-wrap the heatmap; .app centers it */
+}
+
+/* Fixed top-right cluster. position:fixed is the containing block for the
+   settings popover, which drops in under the gear (absolute) without
+   reflowing the heatmap. */
+.ghs-controls {
+  position: fixed;
+  top: 16px;
+  right: 16px;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 18px;
-  max-width: 95vw;
-}
-
-.ghs-headerwrap {
-  width: 100%;
-}
-
-.ghs-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.ghs-identity {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  color: inherit;
-}
-
-.ghs-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: #161b22;
-}
-
-.ghs-names {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.25;
-}
-
-.ghs-name {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.ghs-login {
-  color: #8b949e;
-  font-size: 13px;
-}
-
-.ghs-actions {
-  display: flex;
-  align-items: center;
   gap: 8px;
-}
-
-.ghs-updated {
-  color: #8b949e;
-  font-size: 12px;
-  margin-right: 2px;
 }
 
 .ghs-icon-btn {
@@ -110,29 +63,21 @@ body {
   border-color: #8b949e;
 }
 
-/* ---- stat line --------------------------------------------------------- */
-
-.ghs-stats {
-  display: flex;
-  justify-content: center;
-  gap: 28px;
+/* Refresh glyph color is set inline from data age (green→red); this is just a
+   sane pre-paint default. */
+.ghs-refresh {
+  color: #39d353;
 }
 
-.ghs-stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
-
-.ghs-stat-num {
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.ghs-stat-label {
-  font-size: 12px;
-  color: #8b949e;
+/* Settings popover: anchored under the gear, taken out of flow. */
+.ghs-controls .ghs-settings {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 10;
+  margin-top: 0;
+  width: 260px;
+  box-shadow: 0 8px 24px rgba(1, 4, 9, 0.6);
 }
 
 /* ---- heatmap ----------------------------------------------------------- */
