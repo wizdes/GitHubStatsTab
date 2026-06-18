@@ -53,7 +53,7 @@ unpacked** → select this folder. Open a new tab, click the gear, enter a usern
 ```
 manifest.json          MV3: new-tab override, github.com host_permission, background SW
 newtab.html            page shell → src/main.js
-styles.css             GitHub-dark theme, centered layout
+styles.css             midnight theme, centered layout
 src/parse.js           contributions HTML → { days, total }   (pure, fixture-tested)
 src/heatmap.js         buildGrid / monthLabels (pure) + renderHeatmap
 src/cache.js           24h chrome.storage cache (isFresh pure)

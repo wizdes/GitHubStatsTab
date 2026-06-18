@@ -15,7 +15,7 @@ function run(start, n) {
 
 test('LEVEL_COLORS maps the 5 GitHub levels', () => {
   assert.equal(LEVEL_COLORS.length, 5);
-  assert.equal(LEVEL_COLORS[0], '#161b22');
+  assert.equal(LEVEL_COLORS[0], '#2d2f3b'); // empty cell tuned for the midnight bg
   assert.equal(LEVEL_COLORS[4], '#39d353');
 });
 
