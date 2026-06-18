@@ -119,7 +119,7 @@ test('first open with empty storage shows the prompt — no blank screen (regres
   // First and only navigation in a fresh profile (empty storage), NO reload —
   // this is what a real first new-tab open does.
   await page.goto(`chrome-extension://${id}/newtab.html`);
-  await expect(page.locator('.ghs-card-title')).toBeVisible({ timeout: 6000 });
+  await expect(page.locator('.ghs-input')).toBeVisible({ timeout: 6000 });
   expect(errors, errors.join('\n')).toEqual([]);
   await context.close();
 });
@@ -146,8 +146,9 @@ test('empty state prompts for a username', async () => {
   const { context, id } = await launch();
   const page = await openNewtab(context, id, undefined);
 
-  await expect(page.locator('.ghs-card-title')).toHaveText('GitHub Stats Tab');
+  await expect(page.locator('.ghs-card-sub')).toContainText('Enter a GitHub username');
   await expect(page.locator('.ghs-input')).toBeVisible();
+  expect(await page.locator('.ghs-card-title').count()).toBe(0); // heading removed
 
   await page.screenshot({ path: join(SHOTS, '03-empty.png'), fullPage: true });
   await context.close();

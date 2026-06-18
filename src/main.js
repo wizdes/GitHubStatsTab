@@ -211,7 +211,6 @@ function renderEmpty() {
     h(
       'div',
       { class: 'ghs-card' },
-      h('h1', { class: 'ghs-card-title' }, 'GitHub Stats Tab'),
       h('p', { class: 'ghs-card-sub' }, 'Enter a GitHub username to see its contribution heatmap.'),
       h('div', { class: 'ghs-settings-row' }, input, h('button', { class: 'ghs-btn ghs-btn--primary', onclick: save }, 'Show')),
       error,
