@@ -350,6 +350,43 @@ body {
   border-color: transparent;
 }
 
+/* ---- about footer ------------------------------------------------------ */
+
+.ghs-about {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.ghs-about-name {
+  color: var(--text);
+}
+
+.ghs-about-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.ghs-about-sep {
+  color: var(--border);
+}
+
+.ghs-about-link {
+  color: #58a6ff;
+  text-decoration: none;
+}
+
+.ghs-about-link:hover {
+  text-decoration: underline;
+}
+
 /* ---- spinner + toast --------------------------------------------------- */
 
 .ghs-spinner {

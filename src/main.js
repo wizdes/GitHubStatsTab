@@ -118,6 +118,24 @@ function themeSelector() {
   return h('div', { class: 'ghs-theme' }, h('label', { class: 'ghs-settings-label' }, 'Theme'), row);
 }
 
+// Credit footer at the bottom of the settings popover. Two rows: the app name,
+// then copyright + a "Learn more" link — the 260px panel is too narrow to fit
+// all three on a single line.
+function aboutSection() {
+  return h(
+    'div',
+    { class: 'ghs-about' },
+    h('div', { class: 'ghs-about-name' }, 'Github Stats - New Tab'),
+    h(
+      'div',
+      { class: 'ghs-about-meta' },
+      h('span', {}, '© Yi Li 2026–present'),
+      h('span', { class: 'ghs-about-sep', 'aria-hidden': 'true' }, '·'),
+      h('a', { class: 'ghs-about-link', href: 'https://yili.dev', target: '_blank', rel: 'noopener' }, 'Learn more'),
+    ),
+  );
+}
+
 // ---- settings popover (shared by ready + error states) -------------------
 
 function settingsPanel(currentUsername) {
@@ -154,6 +172,7 @@ function settingsPanel(currentUsername) {
     h('div', { class: 'ghs-settings-row' }, input, h('button', { class: 'ghs-btn ghs-btn--primary', onclick: save }, 'Save')),
     error,
     themeSelector(),
+    aboutSection(),
   );
   return { panel, focus: () => input.focus() };
 }
