@@ -1,4 +1,4 @@
-# GitHub Stats Tab
+# Github Stats - New Tab
 
 A minimal Chrome extension (Manifest V3) that turns every **new tab** into just a
 pixel-faithful GitHub contribution heatmap for one username. **No login / no auth
