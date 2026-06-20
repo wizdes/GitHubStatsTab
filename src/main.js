@@ -131,7 +131,7 @@ function aboutSection() {
       { class: 'ghs-about-meta' },
       h('span', {}, '© Yi Li 2026–present'),
       h('span', { class: 'ghs-about-sep', 'aria-hidden': 'true' }, '·'),
-      h('a', { class: 'ghs-about-link', href: 'https://yili.dev', target: '_blank', rel: 'noopener' }, 'Learn more'),
+      h('a', { class: 'ghs-about-link', href: 'https://yili.dev/projects/github_stats_new_tab/', target: '_blank', rel: 'noopener' }, 'Learn more'),
     ),
   );
 }

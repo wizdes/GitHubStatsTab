@@ -102,7 +102,7 @@ test('clicking outside the open settings popover closes it; the about footer is 
 
   // The about footer lives at the bottom of the panel.
   await expect(page.locator('.ghs-settings .ghs-about-name')).toHaveText('Github Stats - New Tab');
-  await expect(page.locator('.ghs-settings .ghs-about-link')).toHaveAttribute('href', 'https://yili.dev');
+  await expect(page.locator('.ghs-settings .ghs-about-link')).toHaveAttribute('href', 'https://yili.dev/projects/github_stats_new_tab/');
 
   // A click inside the panel must NOT close it.
   await page.locator('.ghs-settings .ghs-input').click();
