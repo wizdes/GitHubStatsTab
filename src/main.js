@@ -205,6 +205,18 @@ function controls(username) {
   return h('div', { class: 'ghs-controls' }, refreshBtn, gearBtn, settings.panel);
 }
 
+// Close the open settings popover when clicking anywhere outside the controls
+// cluster. One listener for the page's lifetime — it reads the live DOM, so it
+// keeps working across re-renders (mount() leaves at most one .ghs-controls)
+// without stacking a new listener per render. Clicks on the gear stay "inside",
+// so its own toggle is unaffected.
+document.addEventListener('pointerdown', (e) => {
+  const controlsEl = app.querySelector('.ghs-controls');
+  if (!controlsEl) return;
+  const panel = controlsEl.querySelector('.ghs-settings');
+  if (panel && !panel.hidden && !controlsEl.contains(e.target)) panel.hidden = true;
+});
+
 // ---- states --------------------------------------------------------------
 
 function renderEmpty() {

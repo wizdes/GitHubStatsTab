@@ -91,6 +91,30 @@ test('gear popover opens under the gear without reflowing the heatmap', async ()
   await context.close();
 });
 
+test('clicking outside the open settings popover closes it; the about footer is shown', async () => {
+  const { context, id } = await launch();
+  mockContributions(context);
+  const page = await openNewtab(context, id, 'torvalds');
+  await expect(page.locator('.ghs-grid')).toBeVisible();
+
+  await page.locator('.ghs-icon-btn[title="Settings"]').click();
+  await expect(page.locator('.ghs-settings .ghs-input')).toBeVisible();
+
+  // The about footer lives at the bottom of the panel.
+  await expect(page.locator('.ghs-settings .ghs-about-name')).toHaveText('Github Stats - New Tab');
+  await expect(page.locator('.ghs-settings .ghs-about-link')).toHaveAttribute('href', 'https://yili.dev');
+
+  // A click inside the panel must NOT close it.
+  await page.locator('.ghs-settings .ghs-input').click();
+  await expect(page.locator('.ghs-settings .ghs-input')).toBeVisible();
+
+  // A click outside the controls cluster (on the heatmap) closes it.
+  await page.locator('.ghs-heatmap').click({ position: { x: 5, y: 5 } });
+  await expect(page.locator('.ghs-settings .ghs-input')).toBeHidden();
+
+  await context.close();
+});
+
 test('settings changes the username (persists + re-renders)', async () => {
   const { context, id } = await launch();
   mockContributions(context);
