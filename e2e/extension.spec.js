@@ -10,7 +10,7 @@ import { readFileSync, mkdirSync } from 'node:fs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const EXT = join(here, '..');
-const SHOTS = join(EXT, 'gate-evidence');
+const SHOTS = join(EXT, 'test-results', 'screenshots');
 const fixtureHtml = readFileSync(join(EXT, 'test', 'fixtures', 'contributions.html'), 'utf8');
 mkdirSync(SHOTS, { recursive: true });
 
