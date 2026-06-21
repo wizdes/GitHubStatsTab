@@ -24,6 +24,7 @@
     "test": "node --test",
     "test:e2e": "playwright test",
     "icons": "node scripts/generate-icons.mjs",
+    "store-assets": "node store-assets/render.mjs",
     "package": "bash scripts/package.sh"
   },
   "devDependencies": {
