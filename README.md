@@ -64,6 +64,12 @@ test/           node:test unit + parser tests (+ fixture)
 e2e/            Playwright loaded-extension tests
 ```
 
+## Privacy
+
+No accounts, no tracking, no data collection — your username and theme stay on your
+device. The extension only fetches the public GitHub profile page to draw the heatmap.
+See [PRIVACY.md](PRIVACY.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
