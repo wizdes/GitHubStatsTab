@@ -1,9 +1,25 @@
 {
   "name": "github-stats-tab",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.2.0",
   "type": "module",
-  "description": "Minimal MV3 Chrome extension: GitHub contribution heatmap + stats on every new tab, no auth token.",
+  "description": "Minimal MV3 Chrome extension that turns every new tab into a public GitHub contribution heatmap. No login or token required.",
+  "license": "MIT",
+  "author": "Yi Li",
+  "homepage": "https://github.com/wizdes/GitHubStatsTab#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wizdes/GitHubStatsTab.git"
+  },
+  "bugs": {
+    "url": "https://github.com/wizdes/GitHubStatsTab/issues"
+  },
+  "keywords": [
+    "chrome-extension",
+    "manifest-v3",
+    "new-tab",
+    "github",
+    "heatmap"
+  ],
   "scripts": {
     "test": "node --test",
     "test:e2e": "playwright test",
