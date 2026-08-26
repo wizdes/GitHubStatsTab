@@ -57,11 +57,11 @@ Replace Chrome's new-tab page with a contribution heatmap for a chosen public Gi
 ```
 
 **Permission justifications**
-- `storage` —
+- `storage`,
   ```
   Stores the user's chosen GitHub username and theme preference, plus a 24-hour local cache of the fetched heatmap, so new tabs open instantly. Nothing is transmitted.
   ```
-- Host permission `https://github.com/*` —
+- Host permission `https://github.com/*`,
   ```
   Fetches the public contributions graph HTML from github.com to render the heatmap. No authentication or API token is used; only the public profile page is requested.
   ```

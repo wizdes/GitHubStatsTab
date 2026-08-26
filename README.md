@@ -26,7 +26,7 @@ This isn't on the Chrome Web Store yet, so load it unpacked:
 
 ## How it works (no token)
 
-The new-tab page fetches a single public HTML fragment —
+The new-tab page fetches a single public HTML fragment,
 `https://github.com/users/{username}/contributions`, using the manifest's lone
 `host_permissions` entry for `github.com`. That HTML is parsed in `src/parse.js`
 (the grid and per-day counts) with no token, no backend, and no `api.github.com`.
