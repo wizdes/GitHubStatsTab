@@ -329,7 +329,7 @@ body {
   border: 1px solid var(--border);
 }
 
-/* Fixed previews — each swatch always shows its theme, not the active one. */
+/* Fixed previews, each swatch always shows its theme, not the active one. */
 .ghs-swatch--light {
   background: #fdf5df;
 }

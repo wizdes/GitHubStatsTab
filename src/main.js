@@ -119,7 +119,7 @@ function themeSelector() {
 }
 
 // Credit footer at the bottom of the settings popover. Two rows: the app name,
-// then copyright + a "Learn more" link — the 260px panel is too narrow to fit
+// then copyright + a "Learn more" link, the 260px panel is too narrow to fit
 // all three on a single line.
 function aboutSection() {
   return h(
@@ -206,7 +206,7 @@ function controls(username) {
 }
 
 // Close the open settings popover when clicking anywhere outside the controls
-// cluster. One listener for the page's lifetime — it reads the live DOM, so it
+// cluster. One listener for the page's lifetime, it reads the live DOM, so it
 // keeps working across re-renders (mount() leaves at most one .ghs-controls)
 // without stacking a new listener per render. Clicks on the gear stay "inside",
 // so its own toggle is unaffected.

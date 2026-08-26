@@ -1,5 +1,5 @@
 // Network edge. The only thing fetched is the public contributions HTML (the
-// heatmap) — no auth token, no api.github.com. Fails loudly: a bad response or
+// heatmap), no auth token, no api.github.com. Fails loudly: a bad response or
 // changed markup throws, and main.js renders the error state.
 
 import { parseContributions } from './parse.js';
@@ -21,5 +21,5 @@ export async function fetchContributions(username) {
   }
   if (res.status === 404) throw ghError(`@${username} not found`, 'not_found');
   if (!res.ok) throw ghError(`GitHub returned ${res.status}`, 'http');
-  return parseContributions(await res.text()); // { days, total } — may throw on markup change
+  return parseContributions(await res.text()); // { days, total }, may throw on markup change
 }

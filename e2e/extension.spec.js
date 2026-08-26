@@ -140,7 +140,7 @@ test('first open with empty storage shows the prompt — no blank screen (regres
   page.on('console', (m) => {
     if (m.type() === 'error') errors.push('console: ' + m.text());
   });
-  // First and only navigation in a fresh profile (empty storage), NO reload —
+  // First and only navigation in a fresh profile (empty storage), NO reload,
   // this is what a real first new-tab open does.
   await page.goto(`chrome-extension://${id}/newtab.html`);
   await expect(page.locator('.ghs-input')).toBeVisible({ timeout: 6000 });
