@@ -12,7 +12,7 @@ Github Stats, New Tab is a small add-on for the Chrome web browser. After you in
 
 **Manifest V3 (MV3).** That instruction file is called `manifest.json`, the "manifest," like a shipping manifest that lists what's in a container. "V3" is simply the third version of the rules Chrome uses to read that file; it's the current standard all new extensions must follow. This project's manifest is `manifest.json` at the repo root, and it declares three important things:
 
-1. **A new-tab override.** The line `"chrome_url_overrides": { "newtab": "newtab.html" }` tells Chrome: "when the user opens a new tab, don't show your default page, show my `newtab.html` instead." That one line is what makes this a new-tab extension.
+1. **A new-tab override.** The line `"chrome_url_overrides": { "newtab": "newtab.html" }` tells Chrome: "when the user opens a new tab, don't show your default page — show my `newtab.html` instead." That one line is what makes this a new-tab extension.
 2. **Permissions.** Extensions must ask up front for what they touch. This one asks for exactly two things: `"storage"` (a small private notepad where the extension can save your settings inside your browser) and permission to talk to `https://github.com/*` (any page on github.com). Nothing else, no reading your browsing history, no other websites.
 3. **A background service worker.** A *service worker* is a script the browser can run in the background even when no page is open. Here (`src/background.js`) it is deliberately almost empty, 6 lines that do nothing. It exists only so the extension has a standard lifecycle hook if a future feature ever needs one. All the real work happens in the new-tab page itself.
 
