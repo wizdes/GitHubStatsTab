@@ -1,4 +1,4 @@
-# Chrome Web Store listing — Github Stats - New Tab
+# Chrome Web Store listing: Github Stats - New Tab
 
 Everything needed for the developer-console listing. Copy/paste the text; upload the
 images from `store-assets/images/`. Regenerate images with `npm run store-assets`.
@@ -67,7 +67,7 @@ Replace Chrome's new-tab page with a contribution heatmap for a chosen public Gi
   ```
 - Remote code: **No.**
 
-**Data usage / certifications** — the extension does **not** collect or use any of the disclosable
+**Data usage / certifications**, the extension does **not** collect or use any of the disclosable
 data categories (PII, location, financial, authentication, web history, user activity, website
 content). Username + theme + cache live **only** on the device. Certify all three: data is not sold,
 not used for unrelated purposes, not used for creditworthiness/lending.
@@ -94,10 +94,10 @@ https://github.com/wizdes/GitHubStatsTab/blob/main/PRIVACY.md
 | Field | File | Size |
 |-------|------|------|
 | Store icon | `store-icon-128.png` | 128×128 |
-| Screenshot 1 | `screenshot-1-dark.png` — "Your year of commits, on every new tab" | 1280×800 |
-| Screenshot 2 | `screenshot-2-light.png` — "Light, Dark & System themes" | 1280×800 |
-| Screenshot 3 | `screenshot-3-settings.png` — "Any public username, one click" | 1280×800 |
-| Screenshot 4 | `screenshot-4-setup.png` — "No login. No token. Just a username." | 1280×800 |
-| Screenshot 5 | `screenshot-5-open-source.png` — "Free & open source" | 1280×800 |
+| Screenshot 1 | `screenshot-1-dark.png`, "Your year of commits, on every new tab" | 1280×800 |
+| Screenshot 2 | `screenshot-2-light.png`, "Light, Dark & System themes" | 1280×800 |
+| Screenshot 3 | `screenshot-3-settings.png`, "Any public username, one click" | 1280×800 |
+| Screenshot 4 | `screenshot-4-setup.png`, "No login. No token. Just a username." | 1280×800 |
+| Screenshot 5 | `screenshot-5-open-source.png`, "Free & open source" | 1280×800 |
 | Small promo tile | `promo-small-440x280.jpg` | 440×280 |
 | Marquee promo tile | `promo-marquee-1400x560.jpg` | 1400×560 |

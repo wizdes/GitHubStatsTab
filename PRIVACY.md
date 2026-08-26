@@ -1,4 +1,4 @@
-# Privacy Policy — Github Stats - New Tab
+# Privacy Policy: Github Stats - New Tab
 
 _Last updated: 2026-06-21_
 
@@ -19,7 +19,7 @@ That's it. This data never leaves your browser.
 ## What it sends
 
 To draw the heatmap, the extension makes a single unauthenticated request to
-`https://github.com/users/<username>/contributions` — the same public contributions
+`https://github.com/users/<username>/contributions`, the same public contributions
 graph shown on a GitHub profile. No API token, no login, and no request to any server
 other than github.com.
 

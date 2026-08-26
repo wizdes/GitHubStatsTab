@@ -1,18 +1,18 @@
-# Github Stats — New Tab
+# Github Stats: New Tab
 
 A minimal Chrome extension (Manifest V3) that turns every new tab into a
 pixel-faithful GitHub contribution heatmap for one username. **No login, no auth
-token** — it reads the public profile page.
+token**, it reads the public profile page.
 
 ![The heatmap on a new tab](docs/screenshot.png)
 
 ## Features
 
-- **Heatmap-only new tab** — the contribution grid (5-level squares, 7 rows × ~53
+- **Heatmap-only new tab**, the contribution grid (5-level squares, 7 rows × ~53
   week columns, with month and Mon/Wed/Fri labels), centered and nothing else.
-- **No login or token** — reads the public profile HTML directly; no backend, no API key.
-- **Light / Dark / System theme** — pick it from the settings gear.
-- **24h cache with a smart refresh** — the refresh button's color encodes data age
+- **No login or token**, reads the public profile HTML directly; no backend, no API key.
+- **Light / Dark / System theme**, pick it from the settings gear.
+- **24h cache with a smart refresh**, the refresh button's color encodes data age
   (green when fresh → red at a day old) and it auto-refreshes once data is a day old.
 
 ## Install
@@ -27,11 +27,11 @@ This isn't on the Chrome Web Store yet, so load it unpacked:
 ## How it works (no token)
 
 The new-tab page fetches a single public HTML fragment —
-`https://github.com/users/{username}/contributions` — using the manifest's lone
+`https://github.com/users/{username}/contributions`, using the manifest's lone
 `host_permissions` entry for `github.com`. That HTML is parsed in `src/parse.js`
 (the grid and per-day counts) with no token, no backend, and no `api.github.com`.
 The endpoint is undocumented and can change, so parsing is isolated and **fails
-loudly** — you get an on-page error and `test/parse.test.js` goes red against the
+loudly**, you get an on-page error and `test/parse.test.js` goes red against the
 saved fixture.
 
 ## Development
@@ -66,10 +66,10 @@ e2e/            Playwright loaded-extension tests
 
 ## Privacy
 
-No accounts, no tracking, no data collection — your username and theme stay on your
+No accounts, no tracking, no data collection, your username and theme stay on your
 device. The extension only fetches the public GitHub profile page to draw the heatmap.
 See [PRIVACY.md](PRIVACY.md).
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE).
