@@ -19,7 +19,7 @@ NAME="github-stats-tab-$VER"
 DIST="$ROOT/dist"
 STAGE="$DIST/pkg"
 
-# Runtime files only — never ship node_modules, tests, e2e, docs, or screenshots.
+# Runtime files only, never ship node_modules, tests, e2e, docs, or screenshots.
 RUNTIME=(manifest.json newtab.html styles.css src icons)
 
 rm -rf "$STAGE"

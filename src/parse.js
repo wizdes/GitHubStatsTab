@@ -4,7 +4,7 @@
 // this throws (caught upstream and shown as an error) and the fixture test
 // in test/parse.test.js goes red.
 //
-// Depends only on a DOMParser — the browser global in the extension, and
+// Depends only on a DOMParser, the browser global in the extension, and
 // linkedom's DOMParser injected onto globalThis in tests.
 
 const COUNT_RE = /^([\d,]+)\s+contribution/i; // "2 contributions on June 15th."
