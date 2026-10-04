@@ -4,6 +4,8 @@ A minimal Chrome extension (Manifest V3) that turns every new tab into a
 pixel-faithful GitHub contribution heatmap for one username. **No login, no auth
 token**, it reads the public profile page.
 
+Website: https://yili.dev/projects/github_stats_new_tab/
+
 ![The heatmap on a new tab](docs/screenshot.png)
 
 ## Features
@@ -17,7 +19,11 @@ token**, it reads the public profile page.
 
 ## Install
 
-This isn't on the Chrome Web Store yet, so load it unpacked:
+Install it from the [Chrome Web Store](https://chromewebstore.google.com/detail/github-stats-new-tab/kfnjfkknmbhcnkflpifncaolmmobcpkh).
+
+### From source (load unpacked)
+
+To run a local copy for development, load it unpacked:
 
 1. Clone or download this repository.
 2. Go to `chrome://extensions` and enable **Developer mode** (top right).

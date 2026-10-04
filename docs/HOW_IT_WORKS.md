@@ -123,9 +123,11 @@ The settings gear offers **Light / Dark / System**. Your choice is saved in the 
 - **No server, no build step, vanilla JavaScript.** The whole app is ~640 lines of JavaScript across 8 files (plus one HTML shell and one stylesheet). A backend or a bundler would add moving parts with nothing to gain at this size; the folder you download is exactly the folder Chrome runs.
 - **24-hour cache with visible age.** For a glance-at-your-streak page, a day-old grid is almost always good enough, so a day-long cache makes almost every new tab instant with near-zero traffic to GitHub. The color-coded button means the cache never silently lies to you about freshness.
 - **Own grid renderer instead of injecting GitHub's HTML.** Rebuilding the grid from parsed data keeps GitHub's page styles and scripts out, and makes theming a pure-CSS switch.
-- **Load-unpacked distribution.** The extension isn't on the Chrome Web Store, so installing it means pointing Chrome at the source folder directly (steps below). For an open-source tool this is zero-cost and transparent: you can read every line you're about to run, and there's no store-review delay between a fix landing and you having it. (Web Store listing assets exist in the repo, so a store release may follow.)
+- **Chrome Web Store release, with the source still runnable.** The extension is published on the [Chrome Web Store](https://chromewebstore.google.com/detail/github-stats-new-tab/kfnjfkknmbhcnkflpifncaolmmobcpkh). Because there is no build step, you can also point Chrome at the source folder directly (steps below) and read every line you are about to run. The Web Store listing assets are kept in the repo.
 
-## Installing it (load unpacked)
+## Installing it
+
+The extension is published on the [Chrome Web Store](https://chromewebstore.google.com/detail/github-stats-new-tab/kfnjfkknmbhcnkflpifncaolmmobcpkh). To run it from source, use load unpacked.
 
 "Load unpacked" is Chrome's developer-oriented way to install an extension straight from a folder instead of from the Web Store.
 
